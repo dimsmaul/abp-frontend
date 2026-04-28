@@ -5,7 +5,8 @@ import { useSession } from '@/lib/auth-client'
 export function useReports(params?: any) {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
-  const isAdmin = session?.user.role === 'admin' || session?.user.role === 'manager'
+  const user = session?.user as any
+  const isAdmin = user?.role === 'admin' || user?.role === 'manager'
 
   const reportsQuery = useQuery({
     queryKey: ['reports', isAdmin, params],

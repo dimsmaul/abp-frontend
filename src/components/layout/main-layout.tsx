@@ -29,7 +29,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     navigate('/login')
   }
 
-  const role = (session?.user.role as string) || 'employee'
+  const role = (session?.user as any)?.role || 'employee'
 
   return (
     <div className="flex h-screen bg-background">
