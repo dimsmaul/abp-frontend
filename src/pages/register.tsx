@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { loading, error, handleRegister, handleGoogleAuth } = useAuth()
+  const { loading, handleRegister, handleGoogleAuth } = useAuth()
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,11 +62,6 @@ export default function RegisterPage() {
                 required
               />
             </div>
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>

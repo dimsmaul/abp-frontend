@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signIn, signUp, authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
 
 export function useAuth() {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = async (data: any) => {
     setLoading(true)
-    setError('')
 
     const { error } = await signIn.email({
       email: data.email,
@@ -18,16 +17,16 @@ export function useAuth() {
     })
 
     if (error) {
-      setError(error.message || 'Gagal masuk. Silakan cek kembali email dan password Anda.')
+      toast.error(error.message || 'Gagal masuk. Silakan cek kembali email dan password Anda.')
       setLoading(false)
     } else {
+      toast.success('Selamat datang kembali!')
       navigate('/')
     }
   }
 
   const handleRegister = async (data: any) => {
     setLoading(true)
-    setError('')
 
     const { error } = await signUp.email({
       email: data.email,
@@ -37,9 +36,10 @@ export function useAuth() {
     })
 
     if (error) {
-      setError(error.message || 'Gagal mendaftar. Silakan coba lagi.')
+      toast.error(error.message || 'Gagal mendaftar. Silakan coba lagi.')
       setLoading(false)
     } else {
+      toast.success('Pendaftaran berhasil!')
       navigate('/')
     }
   }
@@ -53,7 +53,6 @@ export function useAuth() {
 
   return {
     loading,
-    error,
     handleLogin,
     handleRegister,
     handleGoogleAuth

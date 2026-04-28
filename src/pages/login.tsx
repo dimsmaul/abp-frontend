@@ -10,7 +10,7 @@ import { Loader2, MapPin } from 'lucide-react'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { loading, error, handleLogin, handleGoogleAuth } = useAuth()
+  const { loading, handleLogin, handleGoogleAuth } = useAuth()
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,11 +50,6 @@ export default function LoginPage() {
                 required
               />
             </div>
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
