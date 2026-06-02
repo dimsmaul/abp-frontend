@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 import { ArrowLeft, Loader2, Save, Map as MapIcon, Satellite } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Map,
   MapTileLayer,
@@ -164,15 +163,6 @@ export default function OfficeLocationPage() {
             <CardTitle>Atur Zona Presensi (Polygon)</CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            {polygon && polygon.length >= 3 ? (
-              <Badge variant="secondary" className="font-normal">
-                {polygon.length} titik
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="font-normal">
-                Belum digambar
-              </Badge>
-            )}
             <div className="inline-flex rounded-md border p-0.5">
               <Button
                 size="sm"
