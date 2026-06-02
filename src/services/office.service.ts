@@ -19,10 +19,10 @@ export interface OfficeInput {
   name: string
   address: string
   zoneType: ZoneType
-  latitude?: number
-  longitude?: number
-  radius?: number
-  polygon?: number[][]
+  latitude?: number | null
+  longitude?: number | null
+  radius?: number | null
+  polygon?: number[][] | null
 }
 
 export const officeService = {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Building2, Loader2, MapPin, Plus, Trash2, Pencil } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,58 +17,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { MapPicker, type RadiusValue } from '@/components/map-picker'
 import { useOffices } from '@/hooks/use-offices'
-import type { Office, OfficeInput, ZoneType } from '@/services/office.service'
+import type { Office, OfficeInput } from '@/services/office.service'
 
-type FormState = {
-  name: string
-  address: string
-  zoneType: ZoneType
-  radius: RadiusValue
-  polygon: number[][]
-}
+type FormState = { name: string; address: string }
 
-const emptyForm: FormState = {
-  name: '',
-  address: '',
-  zoneType: 'radius',
-  radius: { latitude: 0, longitude: 0, radius: 100 },
-  polygon: [],
-}
+const emptyForm: FormState = { name: '', address: '' }
 
-function officeToForm(o: Office): FormState {
-  return {
-    name: o.name,
-    address: o.address,
-    zoneType: o.zoneType,
-    radius: {
-      latitude: o.latitude ?? 0,
-      longitude: o.longitude ?? 0,
-      radius: o.radius ?? 100,
-    },
-    polygon: o.polygon ?? [],
+function locationSummary(o: Office): string {
+  if (o.zoneType === 'polygon') {
+    return o.polygon && o.polygon.length >= 3 ? `Polygon · ${o.polygon.length} titik` : 'Belum diatur'
   }
-}
-
-function formToPayload(f: FormState): OfficeInput {
-  if (f.zoneType === 'radius') {
-    return {
-      name: f.name,
-      address: f.address,
-      zoneType: 'radius',
-      latitude: f.radius.latitude,
-      longitude: f.radius.longitude,
-      radius: f.radius.radius,
-    }
+  if (o.latitude != null && o.longitude != null && o.radius != null) {
+    return `${o.latitude.toFixed(5)}, ${o.longitude.toFixed(5)} · ${o.radius} m`
   }
-  return {
-    name: f.name,
-    address: f.address,
-    zoneType: 'polygon',
-    polygon: f.polygon,
-  }
+  return 'Belum diatur'
 }
 
 export default function OfficesPage() {
@@ -85,7 +49,6 @@ export default function OfficesPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Office | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
-
   const [deleting, setDeleting] = useState<Office | null>(null)
 
   const openCreate = () => {
@@ -96,28 +59,28 @@ export default function OfficesPage() {
 
   const openEdit = (o: Office) => {
     setEditing(o)
-    setForm(officeToForm(o))
+    setForm({ name: o.name, address: o.address ?? '' })
     setFormOpen(true)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.address.trim()) {
-      toast.error('Nama dan alamat wajib diisi')
+    if (!form.name.trim()) {
+      toast.error('Nama kantor wajib diisi')
       return
     }
-    if (form.zoneType === 'polygon' && form.polygon.length < 3) {
-      toast.error('Polygon harus minimal 3 titik')
-      return
-    }
-    const payload = formToPayload(form)
     try {
       if (editing) {
-        await updateOffice({ id: editing.id, data: payload })
+        await updateOffice({ id: editing.id, data: { name: form.name, address: form.address } })
         toast.success('Kantor diperbarui')
       } else {
+        const payload: OfficeInput = {
+          name: form.name,
+          address: form.address,
+          zoneType: 'radius',
+        }
         await createOffice(payload)
-        toast.success('Kantor dibuat')
+        toast.success('Kantor dibuat. Atur lokasi pada baris kantor.')
       }
       setFormOpen(false)
     } catch (err: any) {
@@ -180,8 +143,8 @@ export default function OfficesPage() {
                   <TableHead>Nama</TableHead>
                   <TableHead>Alamat</TableHead>
                   <TableHead>Tipe Zona</TableHead>
-                  <TableHead>Detail</TableHead>
-                  <TableHead className="w-[140px]"></TableHead>
+                  <TableHead>Lokasi</TableHead>
+                  <TableHead className="w-[220px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -189,7 +152,7 @@ export default function OfficesPage() {
                   <TableRow key={o.id}>
                     <TableCell className="font-medium">{o.name}</TableCell>
                     <TableCell className="text-muted-foreground max-w-[260px] truncate" title={o.address}>
-                      {o.address}
+                      {o.address || '—'}
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="capitalize font-normal">
@@ -197,12 +160,16 @@ export default function OfficesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs">
-                      {o.zoneType === 'radius'
-                        ? `${o.latitude ?? '—'}, ${o.longitude ?? '—'} · ${o.radius ?? '—'} m`
-                        : `${o.polygon?.length ?? 0} titik`}
+                      {locationSummary(o)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        <Link to={`/offices/${o.id}/location`}>
+                          <Button variant="outline" size="sm" className="gap-1.5">
+                            <MapPin size={14} />
+                            Atur Lokasi
+                          </Button>
+                        </Link>
                         <Button variant="ghost" size="sm" onClick={() => openEdit(o)} className="gap-1.5">
                           <Pencil size={14} />
                           Edit
@@ -226,13 +193,15 @@ export default function OfficesPage() {
         </CardContent>
       </Card>
 
-      {/* Create / Edit dialog */}
+      {/* Create / Edit dialog (name + address only) */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Kantor' : 'Tambah Kantor'}</DialogTitle>
             <DialogDescription>
-              Tentukan zona presensi: radius dari satu titik atau polygon area.
+              {editing
+                ? 'Perbarui nama dan alamat kantor. Atur lokasi pada halaman terpisah.'
+                : 'Isi nama dan alamat. Lokasi diatur lewat tombol "Atur Lokasi" setelah kantor dibuat.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -256,38 +225,6 @@ export default function OfficesPage() {
                 placeholder="Jl. Merdeka No. 1"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label>Tipe Zona</Label>
-              <RadioGroup
-                value={form.zoneType}
-                onValueChange={(v) => setForm({ ...form, zoneType: v as ZoneType })}
-                className="flex gap-6"
-              >
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <RadioGroupItem value="radius" id="zt-radius" />
-                  <span>Radius</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
-                  <RadioGroupItem value="polygon" id="zt-polygon" />
-                  <span>Polygon</span>
-                </label>
-              </RadioGroup>
-            </div>
-
-            {form.zoneType === 'radius' ? (
-              <MapPicker
-                mode="radius"
-                value={form.radius}
-                onChange={(v) => setForm({ ...form, radius: v })}
-              />
-            ) : (
-              <MapPicker
-                mode="polygon"
-                value={form.polygon}
-                onChange={(v) => setForm({ ...form, polygon: v })}
-              />
-            )}
 
             <DialogFooter>
               <DialogClose asChild>

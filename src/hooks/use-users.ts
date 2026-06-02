@@ -25,7 +25,7 @@ export function useUsers() {
   })
 
   return {
-    users: usersQuery.data || [],
+    users: Array.isArray(usersQuery.data) ? usersQuery.data : usersQuery.data?.items ?? [],
     isLoading: usersQuery.isLoading,
     createUser: createMutation.mutateAsync,
     updateUser: updateMutation.mutateAsync,
