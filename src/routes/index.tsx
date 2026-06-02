@@ -4,10 +4,13 @@ import { ProtectedRoute } from '@/components/auth/protected-route'
 import LoginPage from '@/pages/login'
 import RegisterPage from '@/pages/register'
 import DashboardPage from '@/pages/dashboard'
-import AttendancePage from '@/pages/attendance'
 import AttendanceListPage from '@/pages/attendance-list'
 import ReportsPage from '@/pages/reports'
 import UsersPage from '@/pages/users'
+import OfficesPage from '@/pages/offices'
+import OfficeLocationPage from '@/pages/office-location'
+import PermitsPage from '@/pages/permits'
+import ProfilePage from '@/pages/profile'
 import { useSession } from '@/lib/auth-client'
 
 // Guest Guard Component
@@ -49,14 +52,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: '/attendance',
-        element: (
-          <MainLayout>
-            <AttendancePage />
-          </MainLayout>
-        ),
-      },
-      {
         path: '/attendance-list',
         element: (
           <MainLayout>
@@ -79,6 +74,48 @@ export const router = createBrowserRouter([
             <UsersPage />
           </MainLayout>
         ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <MainLayout>
+            <ProfilePage />
+          </MainLayout>
+        ),
+      },
+      {
+        element: <ProtectedRoute allowedRoles={['admin']} />,
+        children: [
+          {
+            path: '/offices',
+            element: (
+              <MainLayout>
+                <OfficesPage />
+              </MainLayout>
+            ),
+          },
+          {
+            path: '/offices/:id/location',
+            element: (
+              <MainLayout>
+                <OfficeLocationPage />
+              </MainLayout>
+            ),
+          },
+        ],
+      },
+      {
+        element: <ProtectedRoute allowedRoles={['admin', 'manager']} />,
+        children: [
+          {
+            path: '/permits',
+            element: (
+              <MainLayout>
+                <PermitsPage />
+              </MainLayout>
+            ),
+          },
+        ],
       },
     ],
   },

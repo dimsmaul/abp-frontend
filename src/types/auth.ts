@@ -2,7 +2,7 @@ export interface AppUser {
   id: string
   email: string
   name: string
-  role: 'admin' | 'manager' | 'employee'
+  role: 'admin' | 'manager'
   department?: string
   image?: string | null
 }
