@@ -12,10 +12,9 @@ import {
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager', 'employee'] },
-  { label: 'Presensi', icon: MapPin, href: '/attendance', roles: ['employee'] },
+  { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
   { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
-  { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager', 'employee'] },
+  { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
   { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
 ]
 
@@ -29,7 +28,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     navigate('/login')
   }
 
-  const role = (session?.user as any)?.role || 'employee'
+  const role = (session?.user as any)?.role || 'manager'
 
   return (
     <div className="flex h-screen bg-background">

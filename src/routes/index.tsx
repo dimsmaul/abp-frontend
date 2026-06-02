@@ -4,7 +4,6 @@ import { ProtectedRoute } from '@/components/auth/protected-route'
 import LoginPage from '@/pages/login'
 import RegisterPage from '@/pages/register'
 import DashboardPage from '@/pages/dashboard'
-import AttendancePage from '@/pages/attendance'
 import AttendanceListPage from '@/pages/attendance-list'
 import ReportsPage from '@/pages/reports'
 import UsersPage from '@/pages/users'
@@ -45,14 +44,6 @@ export const router = createBrowserRouter([
         element: (
           <MainLayout>
             <DashboardPage />
-          </MainLayout>
-        ),
-      },
-      {
-        path: '/attendance',
-        element: (
-          <MainLayout>
-            <AttendancePage />
           </MainLayout>
         ),
       },

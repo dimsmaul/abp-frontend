@@ -3,24 +3,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plus, Loader2, FileText, ChevronRight } from 'lucide-react'
+import { Loader2, FileText, ChevronRight } from 'lucide-react'
 
 export default function ReportsPage() {
-  const { reports, isLoading, isAdmin } = useReports()
+  const { reports, isLoading } = useReports()
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Laporan Lapangan</h1>
-          <p className="text-muted-foreground text-sm">Kelola dan pantau laporan kendala di lapangan.</p>
+          <p className="text-muted-foreground text-sm">Validasi laporan kendala dari karyawan di lapangan.</p>
         </div>
-        {!isAdmin && (
-          <Button className="gap-2">
-            <Plus size={16} />
-            Buat Laporan
-          </Button>
-        )}
       </div>
 
       <Card>
@@ -48,7 +42,7 @@ export default function ReportsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[140px]">Tanggal</TableHead>
-                  {isAdmin && <TableHead>Karyawan</TableHead>}
+                  <TableHead>Karyawan</TableHead>
                   <TableHead>Kategori</TableHead>
                   <TableHead className="max-w-[300px]">Deskripsi</TableHead>
                   <TableHead>Status</TableHead>
@@ -61,7 +55,7 @@ export default function ReportsPage() {
                     <TableCell className="text-muted-foreground">
                       {new Date(report.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </TableCell>
-                    {isAdmin && <TableCell className="font-medium">{report.userName}</TableCell>}
+                    <TableCell className="font-medium">{report.userName}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="capitalize font-normal">
                         {report.category}
