@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { signOut, useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
@@ -18,8 +19,12 @@ import {
   FileCheck,
   LogOut,
   User as UserIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+const SIDEBAR_KEY = 'fieldtrack:sidebar-collapsed'
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
@@ -35,6 +40,15 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem(SIDEBAR_KEY) === '1'
+  })
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0')
+  }, [collapsed])
+
   const handleLogout = async () => {
     await signOut()
     navigate('/login')
@@ -45,15 +59,19 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   if (!role) return null
 
-  const activeItem = navItems.find((i) => i.href === location.pathname)
-  const pageTitle = activeItem?.label ?? 'FieldTrack'
   const initial = session?.user?.name?.charAt(0)?.toUpperCase() ?? '?'
+  const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose
 
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r flex flex-col">
-        <div className="p-6">
+      <aside
+        className={cn(
+          'border-r flex flex-col overflow-hidden transition-[width] duration-200 ease-in-out',
+          collapsed ? 'w-0' : 'w-64',
+        )}
+      >
+        <div className="p-6 shrink-0">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <MapPin size={16} />
@@ -62,7 +80,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 px-3 space-y-1 min-w-[14rem]">
           {navItems
             .filter((item) => item.roles.includes(role))
             .map((item) => {
@@ -87,9 +105,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
       {/* Right column: navbar + content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-14 border-b flex items-center justify-between px-6 bg-background">
-          <h2 className="text-base font-semibold tracking-tight">{pageTitle}</h2>
+        <header className="h-14 border-b flex items-center justify-between px-4 bg-background">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
+          >
+            <ToggleIcon size={18} />
+          </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -29,10 +29,11 @@ function buildPages(current: number, total: number): (number | 'ellipsis')[] {
 }
 
 export function TablePagination({ page, totalPages, total, limit, onPageChange }: Props) {
+  if (!total || total < 1) return null
   const tp = Math.max(1, totalPages || 1)
   const pages = buildPages(page, tp)
-  const from = total && limit && total > 0 ? (page - 1) * limit + 1 : 0
-  const to = total && limit ? Math.min(page * limit, total) : 0
+  const from = limit ? (page - 1) * limit + 1 : 0
+  const to = limit ? Math.min(page * limit, total) : 0
 
   return (
     <div className="flex items-center justify-between gap-4 pt-4">

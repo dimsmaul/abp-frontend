@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { ChevronRight, FileCheck, Loader2, Paperclip } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TablePagination } from '@/components/table-pagination'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ChevronRight, Loader2, Paperclip } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { DataTable } from '@/components/datatable'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -110,66 +109,48 @@ export default function PermitsPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Daftar Pengajuan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="animate-spin text-muted-foreground" size={28} />
-            </div>
-          ) : permits.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
-                <FileCheck className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="text-sm font-medium">Tidak ada pengajuan</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Belum ada pengajuan untuk filter yang dipilih.
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nama Karyawan</TableHead>
-                  <TableHead>Departemen</TableHead>
-                  <TableHead>Tipe</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {permits.map((p) => (
-                  <TableRow key={p.id} className="group cursor-pointer" onClick={() => openDetail(p)}>
-                    <TableCell className="font-medium">{p.user?.name ?? '—'}</TableCell>
-                    <TableCell className="text-muted-foreground">{p.user?.department ?? '—'}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="capitalize font-normal">
-                        {p.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatRange(p.startDate, p.endDate)}
-                    </TableCell>
-                    <TableCell>{statusBadge(p.status)}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <ChevronRight size={16} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <TablePagination
-            page={meta?.page ?? page}
-            totalPages={meta?.totalPages ?? 1}
-            total={meta?.total ?? 0}
-            limit={meta?.limit ?? limit}
-            onPageChange={setPage}
+        <CardContent className="pt-6">
+          <DataTable<Permit>
+            data={permits}
+            loading={isLoading}
+            column={[
+              'Nama Karyawan',
+              'Departemen',
+              'Tipe',
+              'Tanggal',
+              'Status',
+              { label: '', width: '60px' },
+            ]}
+            field={[
+              (p) => <span className="font-medium">{p.user?.name ?? '—'}</span>,
+              (p) => <span className="text-muted-foreground">{p.user?.department ?? '—'}</span>,
+              (p) => (
+                <Badge variant="secondary" className="capitalize font-normal">
+                  {p.type}
+                </Badge>
+              ),
+              (p) => (
+                <span className="text-muted-foreground">
+                  {formatRange(p.startDate, p.endDate)}
+                </span>
+              ),
+              (p) => statusBadge(p.status),
+              () => (
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <ChevronRight size={16} />
+                </Button>
+              ),
+            ]}
+            rowKey={(p) => p.id}
+            onRowClick={openDetail}
+            pagination={{
+              page: meta?.page ?? page,
+              totalPages: meta?.totalPages ?? 1,
+              total: meta?.total ?? 0,
+              limit: meta?.limit ?? limit,
+              onPageChange: setPage,
+            }}
+            empty="Belum ada pengajuan untuk filter ini"
           />
         </CardContent>
       </Card>

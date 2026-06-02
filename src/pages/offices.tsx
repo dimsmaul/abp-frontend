@@ -1,19 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Building2, Loader2, MapPin, Plus, Trash2, Pencil, MoreHorizontal } from 'lucide-react'
+import { MapPin, Plus, Trash2, Pencil, MoreHorizontal, Check, Minus, Loader2 } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DataTable } from '@/components/datatable'
 import {
   Dialog,
   DialogClose,
@@ -24,7 +23,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useOffices } from '@/hooks/use-offices'
-import { TablePagination } from '@/components/table-pagination'
 import type { Office, OfficeInput } from '@/services/office.service'
 
 type FormState = { name: string; address: string }
@@ -121,92 +119,71 @@ export default function OfficesPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Daftar Kantor</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="animate-spin text-muted-foreground" size={28} />
-            </div>
-          ) : offices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
-                <Building2 className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="text-sm font-medium">Belum ada kantor</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Tambahkan kantor pertama untuk memulai.
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>Alamat</TableHead>
-                  <TableHead>Status Lokasi</TableHead>
-                  <TableHead className="w-[60px] text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {offices.map((o: Office) => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-medium">{o.name}</TableCell>
-                    <TableCell className="text-muted-foreground max-w-[260px] truncate" title={o.address}>
-                      {o.address || '—'}
-                    </TableCell>
-                    <TableCell>
-                      {isLocationSet(o) ? (
-                        <Badge variant="default" className="font-normal">
-                          Sudah diatur ({o.polygon!.length} titik)
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="font-normal text-muted-foreground">
-                          Belum diatur
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal size={16} />
-                            <span className="sr-only">Aksi</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/offices/${o.id}/location`}>
-                              <MapPin size={14} />
-                              Atur Lokasi
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openEdit(o)}>
-                            <Pencil size={14} />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setDeleting(o)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 size={14} />
-                            Hapus
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <TablePagination
-            page={meta?.page ?? page}
-            totalPages={meta?.totalPages ?? 1}
-            total={meta?.total ?? 0}
-            limit={meta?.limit ?? limit}
-            onPageChange={setPage}
+        <CardContent className="pt-6">
+          <DataTable<Office>
+            data={offices}
+            loading={isLoading}
+            column={['Nama', 'Alamat', 'Status Lokasi', { label: '', width: '60px', className: 'text-right' }]}
+            field={[
+              (o) => <span className="font-medium">{o.name}</span>,
+              (o) => (
+                <span className="text-muted-foreground max-w-[260px] truncate block" title={o.address}>
+                  {o.address || '—'}
+                </span>
+              ),
+              (o) =>
+                isLocationSet(o) ? (
+                  <span className="inline-flex items-center gap-1.5 text-sm">
+                    <Check size={14} className="text-emerald-500" />
+                    Sudah
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Minus size={14} />
+                    Belum
+                  </span>
+                ),
+              (o) => (
+                <div className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal size={16} />
+                        <span className="sr-only">Aksi</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem asChild>
+                        <Link to={`/offices/${o.id}/location`}>
+                          <MapPin size={14} />
+                          Atur Lokasi
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openEdit(o)}>
+                        <Pencil size={14} />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setDeleting(o)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 size={14} />
+                        Hapus
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ),
+            ]}
+            rowKey={(o) => o.id}
+            pagination={{
+              page: meta?.page ?? page,
+              totalPages: meta?.totalPages ?? 1,
+              total: meta?.total ?? 0,
+              limit: meta?.limit ?? limit,
+              onPageChange: setPage,
+            }}
+            empty="Belum ada kantor"
           />
         </CardContent>
       </Card>
