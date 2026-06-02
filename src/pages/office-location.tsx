@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ArrowLeft, Loader2, Save, Map as MapIcon, Satellite } from 'lucide-react'
+import { useTheme } from '@/components/theme-provider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,21 +24,29 @@ const DEFAULT_CENTER: [number, number] = [-6.2088, 106.8456] // Jakarta
 type PolygonGeom = number[][] | null // [[lng,lat], ...]
 type TileKind = 'map' | 'satellite'
 
-const TILE_CONFIG: Record<TileKind, { url: string; attribution: string }> = {
-  map: {
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  },
-  satellite: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri',
-  },
+const CARTO_ATTR =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+
+const TILE_URL = {
+  mapLight: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  mapDark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  satellite:
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 }
 
-const POLYGON_STYLES: Record<TileKind, { color: string; fillColor: string; fillOpacity: number; weight: number }> = {
-  map: { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2 },
-  satellite: { color: '#0a0a0a', fillColor: '#0a0a0a', fillOpacity: 0.3, weight: 2 },
+function useResolvedDark(): boolean {
+  const { theme } = useTheme()
+  const [systemDark, setSystemDark] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+  useEffect(() => {
+    if (theme !== 'system') return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [theme])
+  return theme === 'dark' || (theme === 'system' && systemDark)
 }
 
 export default function OfficeLocationPage() {
@@ -55,6 +64,7 @@ export default function OfficeLocationPage() {
 
   const [polygon, setPolygon] = useState<PolygonGeom>(null)
   const [tile, setTile] = useState<TileKind>('map')
+  const isDark = useResolvedDark()
 
   useEffect(() => {
     if (!office) return
@@ -130,8 +140,20 @@ export default function OfficeLocationPage() {
     )
   }
 
-  const polygonStyle = POLYGON_STYLES[tile]
-  const tileCfg = TILE_CONFIG[tile]
+  const tileUrl =
+    tile === 'satellite' ? TILE_URL.satellite : isDark ? TILE_URL.mapDark : TILE_URL.mapLight
+  const tileAttr = tile === 'satellite' ? 'Tiles &copy; Esri' : CARTO_ATTR
+  const tileKey = `${tile}-${isDark ? 'dark' : 'light'}`
+
+  // Polygon style decoupled from primary token.
+  // - Satellite: always WHITE (colorful imagery -> white contrasts best).
+  // - Map tile: follows tile darkness; dark tile -> white polygon; light tile -> dark polygon.
+  const polygonStyle =
+    tile === 'satellite'
+      ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2 }
+      : isDark
+        ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2 }
+        : { color: '#0a0a0a', fillColor: '#0a0a0a', fillOpacity: 0.25, weight: 2 }
 
   return (
     <div className="space-y-6">
@@ -186,11 +208,7 @@ export default function OfficeLocationPage() {
         <CardContent className="space-y-3">
           <div className="h-[560px] w-full overflow-hidden rounded-md border">
             <Map center={mapCenter} zoom={15} className="h-full w-full">
-              <MapTileLayer
-                key={tile}
-                url={tileCfg.url}
-                attribution={tileCfg.attribution}
-              />
+              <MapTileLayer key={tileKey} url={tileUrl} attribution={tileAttr} />
               <MapZoomControl />
               {polygon && polygon.length >= 3 && (
                 <MapPolygon
