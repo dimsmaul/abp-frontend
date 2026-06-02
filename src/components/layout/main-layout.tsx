@@ -32,7 +32,14 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     navigate('/login')
   }
 
-  const role = (session?.user as any)?.role || 'manager'
+  const rawRole = (session?.user as any)?.role
+  const role = rawRole && ['admin', 'manager', 'employee'].includes(rawRole) ? rawRole : null
+
+  if (!role) {
+    // Session loading or missing role — render no nav. Treat as unauthenticated
+    // rather than defaulting to a privileged role (avoids privilege escalation).
+    return null
+  }
 
   return (
     <div className="flex h-screen bg-background">
