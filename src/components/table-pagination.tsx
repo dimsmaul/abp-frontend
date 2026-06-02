@@ -36,7 +36,7 @@ export function TablePagination({ page, totalPages, total, limit, onPageChange }
   const to = limit ? Math.min(page * limit, total) : 0
 
   return (
-    <div className="flex items-center justify-between gap-4 border-t py-3">
+    <div className="flex items-center justify-between gap-4 border-t pt-3">
       <div className="text-muted-foreground text-xs">
         Menampilkan <span className="font-medium text-foreground">{from}–{to}</span> dari{' '}
         <span className="font-medium text-foreground">{total ?? 0}</span>
