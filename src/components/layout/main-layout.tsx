@@ -1,11 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { signOut, useSession } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
-import { 
-  LayoutDashboard, 
-  MapPin, 
-  FileText, 
-  Users, 
+import {
+  LayoutDashboard,
+  MapPin,
+  FileText,
+  Users,
+  Building2,
   LogOut,
   ChevronRight
 } from 'lucide-react'
@@ -15,6 +16,7 @@ const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
   { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
   { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
+  { label: 'Kantor', icon: Building2, href: '/offices', roles: ['admin'] },
   { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
 ]
 
