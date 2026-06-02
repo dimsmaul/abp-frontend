@@ -74,15 +74,13 @@ export default function UsersPage() {
               </TableBody>
             </Table>
           )}
-          {meta && (
-            <TablePagination
-              page={meta.page}
-              totalPages={meta.totalPages}
-              total={meta.total}
-              limit={meta.limit}
-              onPageChange={setPage}
-            />
-          )}
+          <TablePagination
+            page={meta?.page ?? page}
+            totalPages={meta?.totalPages ?? 1}
+            total={meta?.total ?? 0}
+            limit={meta?.limit ?? limit}
+            onPageChange={setPage}
+          />
         </CardContent>
       </Card>
     </div>

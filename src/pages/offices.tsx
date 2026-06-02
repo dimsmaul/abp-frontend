@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useOffices } from '@/hooks/use-offices'
+import { TablePagination } from '@/components/table-pagination'
 import type { Office, OfficeInput } from '@/services/office.service'
 
 type FormState = { name: string; address: string }
@@ -41,8 +42,11 @@ function locationSummary(o: Office): string {
 }
 
 export default function OfficesPage() {
+  const [page, setPage] = useState(1)
+  const limit = 20
   const {
     offices,
+    meta,
     isLoading,
     createOffice,
     updateOffice,
@@ -50,7 +54,7 @@ export default function OfficesPage() {
     isCreating,
     isUpdating,
     isRemoving,
-  } = useOffices()
+  } = useOffices({ page, limit })
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Office | null>(null)
@@ -201,6 +205,13 @@ export default function OfficesPage() {
               </TableBody>
             </Table>
           )}
+          <TablePagination
+            page={meta?.page ?? page}
+            totalPages={meta?.totalPages ?? 1}
+            total={meta?.total ?? 0}
+            limit={meta?.limit ?? limit}
+            onPageChange={setPage}
+          />
         </CardContent>
       </Card>
 

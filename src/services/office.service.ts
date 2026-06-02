@@ -25,10 +25,12 @@ export interface OfficeInput {
   polygon?: number[][] | null
 }
 
+export type OfficeListMeta = { page: number; limit: number; total: number; totalPages: number }
+
 export const officeService = {
-  getAll: async () => {
-    const res = await api.get('/api/offices')
-    return res.data.data as Office[]
+  getAll: async (params?: { page?: number; limit?: number }) => {
+    const res = await api.get('/api/offices', { params })
+    return res.data.data as { items: Office[]; meta: OfficeListMeta }
   },
 
   getById: async (id: string) => {

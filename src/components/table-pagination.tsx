@@ -29,21 +29,16 @@ function buildPages(current: number, total: number): (number | 'ellipsis')[] {
 }
 
 export function TablePagination({ page, totalPages, total, limit, onPageChange }: Props) {
-  if (!totalPages || totalPages < 1) return null
-
-  const pages = buildPages(page, totalPages)
-  const from = total && limit ? (page - 1) * limit + 1 : null
-  const to = total && limit ? Math.min(page * limit, total) : null
+  const tp = Math.max(1, totalPages || 1)
+  const pages = buildPages(page, tp)
+  const from = total && limit && total > 0 ? (page - 1) * limit + 1 : 0
+  const to = total && limit ? Math.min(page * limit, total) : 0
 
   return (
     <div className="flex items-center justify-between gap-4 pt-4">
       <div className="text-muted-foreground text-xs">
-        {total != null && limit != null ? (
-          <>
-            Menampilkan <span className="font-medium text-foreground">{from}–{to}</span> dari{' '}
-            <span className="font-medium text-foreground">{total}</span>
-          </>
-        ) : null}
+        Menampilkan <span className="font-medium text-foreground">{from}–{to}</span> dari{' '}
+        <span className="font-medium text-foreground">{total ?? 0}</span>
       </div>
       <Pagination className="mx-0 w-auto justify-end">
         <PaginationContent>
@@ -81,11 +76,11 @@ export function TablePagination({ page, totalPages, total, limit, onPageChange }
           <PaginationItem>
             <PaginationNext
               href="#"
-              aria-disabled={page >= totalPages}
-              className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
+              aria-disabled={page >= tp}
+              className={page >= tp ? 'pointer-events-none opacity-50' : ''}
               onClick={(e) => {
                 e.preventDefault()
-                if (page < totalPages) onPageChange(page + 1)
+                if (page < tp) onPageChange(page + 1)
               }}
             />
           </PaginationItem>

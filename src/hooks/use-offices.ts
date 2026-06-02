@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { officeService, type OfficeInput } from '@/services/office.service'
 
-export function useOffices() {
+export function useOffices(params?: { page?: number; limit?: number }) {
   const queryClient = useQueryClient()
+  const page = params?.page ?? 1
+  const limit = params?.limit ?? 20
 
   const listQuery = useQuery({
-    queryKey: ['offices'],
-    queryFn: () => officeService.getAll(),
+    queryKey: ['offices', page, limit],
+    queryFn: () => officeService.getAll({ page, limit }),
   })
 
   const createMutation = useMutation({
@@ -32,7 +34,8 @@ export function useOffices() {
   })
 
   return {
-    offices: listQuery.data || [],
+    offices: listQuery.data?.items ?? [],
+    meta: listQuery.data?.meta,
     isLoading: listQuery.isLoading,
     createOffice: createMutation.mutateAsync,
     updateOffice: updateMutation.mutateAsync,
