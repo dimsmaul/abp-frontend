@@ -109,7 +109,7 @@ export default function PermitsPage() {
       </div>
 
       <Card className="py-0">
-        <CardContent className="p-0">
+        <CardContent>
           <DataTable<Permit>
             data={permits}
             loading={isLoading}

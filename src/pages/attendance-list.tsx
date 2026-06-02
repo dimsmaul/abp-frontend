@@ -19,7 +19,7 @@ export default function AttendanceListPage() {
       </div>
 
       <Card className="py-0">
-        <CardContent className="p-0">
+        <CardContent>
           <DataTable<any>
             data={webHistory}
             loading={isWebLoading}

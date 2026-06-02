@@ -119,7 +119,7 @@ export default function OfficesPage() {
       </div>
 
       <Card className="py-0">
-        <CardContent className="p-0">
+        <CardContent>
           <DataTable<Office>
             data={offices}
             loading={isLoading}
