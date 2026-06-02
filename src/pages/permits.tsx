@@ -39,6 +39,16 @@ function statusBadge(s: PermitStatus) {
   return <Badge variant="destructive">Ditolak</Badge>
 }
 
+function safeHttpUrl(u?: string | null): string | undefined {
+  if (!u) return undefined
+  try {
+    const parsed = new URL(u, window.location.origin)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.toString() : undefined
+  } catch {
+    return undefined
+  }
+}
+
 function formatRange(start: string, end: string) {
   const s = new Date(start).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
   const e = new Date(end).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -191,20 +201,24 @@ export default function PermitsPage() {
                   <p className="text-muted-foreground text-xs">Deskripsi</p>
                   <p className="text-foreground whitespace-pre-line">{detail.description || '—'}</p>
                 </div>
-                {detail.attachmentUrl && (
-                  <div className="col-span-2">
-                    <p className="text-muted-foreground text-xs">Lampiran</p>
-                    <a
-                      href={detail.attachmentUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
-                    >
-                      <Paperclip size={14} />
-                      Lihat lampiran
-                    </a>
-                  </div>
-                )}
+                {(() => {
+                  const safeAttachment = safeHttpUrl(detail.attachmentUrl)
+                  if (!safeAttachment) return null
+                  return (
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground text-xs">Lampiran</p>
+                      <a
+                        href={safeAttachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
+                      >
+                        <Paperclip size={14} />
+                        Lihat lampiran
+                      </a>
+                    </div>
+                  )
+                })()}
               </div>
 
               <div className="space-y-1.5">
