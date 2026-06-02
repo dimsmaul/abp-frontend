@@ -8,6 +8,7 @@ import AttendanceListPage from '@/pages/attendance-list'
 import ReportsPage from '@/pages/reports'
 import UsersPage from '@/pages/users'
 import OfficesPage from '@/pages/offices'
+import PermitsPage from '@/pages/permits'
 import { useSession } from '@/lib/auth-client'
 
 // Guest Guard Component
@@ -80,6 +81,19 @@ export const router = createBrowserRouter([
             element: (
               <MainLayout>
                 <OfficesPage />
+              </MainLayout>
+            ),
+          },
+        ],
+      },
+      {
+        element: <ProtectedRoute allowedRoles={['admin', 'manager']} />,
+        children: [
+          {
+            path: '/permits',
+            element: (
+              <MainLayout>
+                <PermitsPage />
               </MainLayout>
             ),
           },

@@ -7,6 +7,7 @@ import {
   FileText,
   Users,
   Building2,
+  FileCheck,
   LogOut,
   ChevronRight
 } from 'lucide-react'
@@ -16,6 +17,7 @@ const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
   { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
   { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
+  { label: 'Pengajuan', icon: FileCheck, href: '/permits', roles: ['admin', 'manager'] },
   { label: 'Kantor', icon: Building2, href: '/offices', roles: ['admin'] },
   { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
 ]
