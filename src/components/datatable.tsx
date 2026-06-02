@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Inbox } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -57,6 +58,27 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const headers = column.map((c) => (typeof c === 'string' ? { label: c } : c))
   const colCount = column.length
+  const isEmpty = !loading && data.length === 0
+
+  if (isEmpty) {
+    return (
+      <div className={className}>
+        {typeof empty === 'string' || empty == null ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="bg-muted mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+              <Inbox className="text-muted-foreground h-6 w-6" />
+            </div>
+            <h3 className="text-sm font-medium">Tidak ada data</h3>
+            <p className="text-muted-foreground mt-1 max-w-sm text-sm">
+              {(empty as string) ?? 'Belum ada data untuk ditampilkan.'}
+            </p>
+          </div>
+        ) : (
+          empty
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={className}>
@@ -76,14 +98,6 @@ export function DataTable<T>({
         </TableHeader>
         {loading ? (
           <TableSkeleton columns={colCount} rows={skeletonRows} />
-        ) : data.length === 0 ? (
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={colCount} className="py-16 text-center">
-                {empty ?? <span className="text-muted-foreground text-sm">Belum ada data</span>}
-              </TableCell>
-            </TableRow>
-          </TableBody>
         ) : (
           <TableBody>
             {data.map((row, rIdx) => (
