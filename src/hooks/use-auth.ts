@@ -9,38 +9,59 @@ export function useAuth() {
 
   const handleLogin = async (data: any) => {
     setLoading(true)
+    try {
+      const { error } = await signIn.email({
+        email: data.email,
+        password: data.password,
+        callbackURL: '/',
+      })
 
-    const { error } = await signIn.email({
-      email: data.email,
-      password: data.password,
-      callbackURL: '/'
-    })
+      if (error) {
+        toast.error(error.message || 'Gagal masuk. Silakan cek kembali email dan password Anda.')
+        return
+      }
 
-    if (error) {
-      toast.error(error.message || 'Gagal masuk. Silakan cek kembali email dan password Anda.')
-      setLoading(false)
-    } else {
       toast.success('Selamat datang kembali!')
       navigate('/')
+    } catch (e: any) {
+      // Network/CORS/5xx — better-auth client throws here. Always release loading.
+      const msg =
+        e?.message?.toLowerCase?.().includes('failed to fetch') ||
+        e?.message?.toLowerCase?.().includes('network')
+          ? 'Tidak bisa terhubung ke server. Cek koneksi atau coba lagi.'
+          : e?.message || 'Terjadi kesalahan saat login.'
+      toast.error(msg)
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleRegister = async (data: any) => {
     setLoading(true)
+    try {
+      const { error } = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        callbackURL: '/',
+      })
 
-    const { error } = await signUp.email({
-      email: data.email,
-      password: data.password,
-      name: data.name,
-      callbackURL: '/'
-    })
+      if (error) {
+        toast.error(error.message || 'Gagal mendaftar. Silakan coba lagi.')
+        return
+      }
 
-    if (error) {
-      toast.error(error.message || 'Gagal mendaftar. Silakan coba lagi.')
-      setLoading(false)
-    } else {
       toast.success('Pendaftaran berhasil!')
       navigate('/')
+    } catch (e: any) {
+      const msg =
+        e?.message?.toLowerCase?.().includes('failed to fetch') ||
+        e?.message?.toLowerCase?.().includes('network')
+          ? 'Tidak bisa terhubung ke server. Cek koneksi atau coba lagi.'
+          : e?.message || 'Terjadi kesalahan saat registrasi.'
+      toast.error(msg)
+    } finally {
+      setLoading(false)
     }
   }
 
