@@ -26,13 +26,32 @@ import { cn } from '@/lib/utils'
 
 const SIDEBAR_KEY = 'fieldtrack:sidebar-collapsed'
 
-const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
-  { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
-  { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
-  { label: 'Pengajuan', icon: FileCheck, href: '/permits', roles: ['admin', 'manager'] },
-  { label: 'Kantor', icon: Building2, href: '/offices', roles: ['admin'] },
-  { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
+type Role = 'admin' | 'manager' | 'employee'
+type NavItem = { label: string; icon: any; href: string; roles: Role[] }
+type NavGroup = { label: string; items: NavItem[] }
+
+const navGroups: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [
+      { label: 'Dashboard', icon: LayoutDashboard, href: '/', roles: ['admin', 'manager'] },
+    ],
+  },
+  {
+    label: 'Operasional',
+    items: [
+      { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
+      { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
+      { label: 'Pengajuan', icon: FileCheck, href: '/permits', roles: ['admin', 'manager'] },
+    ],
+  },
+  {
+    label: 'Pengaturan',
+    items: [
+      { label: 'Kantor', icon: Building2, href: '/offices', roles: ['admin'] },
+      { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
+    ],
+  },
 ]
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
@@ -80,26 +99,34 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 min-w-[14rem]">
-          {navItems
-            .filter((item) => item.roles.includes(role))
-            .map((item) => {
-              const isActive = location.pathname === item.href
-              return (
-                <Link key={item.href} to={item.href}>
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className={cn(
-                      'w-full justify-start gap-3 h-10 font-medium',
-                      isActive && 'bg-secondary font-semibold',
-                    )}
-                  >
-                    <item.icon size={18} />
-                    {item.label}
-                  </Button>
-                </Link>
-              )
-            })}
+        <nav className="flex-1 px-3 space-y-5 min-w-[14rem]">
+          {navGroups
+            .map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role as Role)) }))
+            .filter((g) => g.items.length > 0)
+            .map((group) => (
+              <div key={group.label} className="space-y-1">
+                <p className="text-muted-foreground px-3 text-[10px] font-semibold uppercase tracking-wider">
+                  {group.label}
+                </p>
+                {group.items.map((item) => {
+                  const isActive = location.pathname === item.href
+                  return (
+                    <Link key={item.href} to={item.href}>
+                      <Button
+                        variant={isActive ? 'secondary' : 'ghost'}
+                        className={cn(
+                          'w-full justify-start gap-3 h-10 font-medium',
+                          isActive && 'bg-secondary font-semibold',
+                        )}
+                      >
+                        <item.icon size={18} />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  )
+                })}
+              </div>
+            ))}
         </nav>
       </aside>
 
