@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -125,7 +125,6 @@ export default function OfficesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Kantor</CardTitle>
-          <CardDescription>Semua lokasi kantor yang terdaftar.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (

@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useReports } from '@/hooks/use-reports'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TablePagination } from '@/components/table-pagination'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Loader2, FileText, ChevronRight } from 'lucide-react'
 
 export default function ReportsPage() {
-  const { reports, isLoading } = useReports()
+  const [page, setPage] = useState(1)
+  const limit = 20
+  const { reports, meta, isLoading } = useReports({ page, limit })
 
   return (
     <div className="space-y-8">
@@ -20,7 +24,6 @@ export default function ReportsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Laporan</CardTitle>
-          <CardDescription>Semua laporan yang telah diajukan.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -86,6 +89,15 @@ export default function ReportsPage() {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {meta && (
+            <TablePagination
+              page={meta.page}
+              totalPages={meta.totalPages}
+              total={meta.total}
+              limit={meta.limit}
+              onPageChange={setPage}
+            />
           )}
         </CardContent>
       </Card>

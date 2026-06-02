@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ChevronRight, FileCheck, Loader2, Paperclip } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TablePagination } from '@/components/table-pagination'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,7 +58,9 @@ function formatRange(start: string, end: string) {
 
 export default function PermitsPage() {
   const [status, setStatus] = useState<PermitStatus | 'all'>('all')
-  const { permits, isLoading, validate, isValidating } = usePermits(status)
+  const [page, setPage] = useState(1)
+  const limit = 20
+  const { permits, meta, isLoading, validate, isValidating } = usePermits({ status, page, limit })
 
   const [detail, setDetail] = useState<Permit | null>(null)
   const [notes, setNotes] = useState('')
@@ -109,7 +112,6 @@ export default function PermitsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Pengajuan</CardTitle>
-          <CardDescription>Semua pengajuan dari karyawan.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -161,6 +163,15 @@ export default function PermitsPage() {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {meta && (
+            <TablePagination
+              page={meta.page}
+              totalPages={meta.totalPages}
+              total={meta.total}
+              limit={meta.limit}
+              onPageChange={setPage}
+            />
           )}
         </CardContent>
       </Card>

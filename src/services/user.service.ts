@@ -1,8 +1,8 @@
 import api from '@/lib/axios'
 
 export const userService = {
-  getUsers: async () => {
-    const res = await api.get('/api/web/users')
+  getUsers: async (params?: { page?: number; limit?: number }) => {
+    const res = await api.get('/api/web/users', { params })
     return res.data.data
   },
   

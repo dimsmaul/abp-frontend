@@ -18,8 +18,11 @@ export function useReports(params?: any) {
 
   return {
     reports: reportsQuery.data?.items || [],
+    meta: reportsQuery.data?.meta as
+      | { page: number; limit: number; total: number; totalPages: number }
+      | undefined,
     isLoading: reportsQuery.isLoading,
     validateReport: validateMutation.mutateAsync,
-    isValidating: validateMutation.isPending
+    isValidating: validateMutation.isPending,
   }
 }

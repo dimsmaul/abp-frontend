@@ -1,12 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { userService } from '@/services/user.service'
 
-export function useUsers() {
+export function useUsers(params?: { page?: number; limit?: number }) {
   const queryClient = useQueryClient()
 
+  const page = params?.page ?? 1
+  const limit = params?.limit ?? 20
+
   const usersQuery = useQuery({
-    queryKey: ['users'],
-    queryFn: () => userService.getUsers()
+    queryKey: ['users', page, limit],
+    queryFn: () => userService.getUsers({ page, limit })
   })
 
   const createMutation = useMutation({
@@ -26,6 +29,9 @@ export function useUsers() {
 
   return {
     users: Array.isArray(usersQuery.data) ? usersQuery.data : usersQuery.data?.items ?? [],
+    meta: (Array.isArray(usersQuery.data) ? undefined : usersQuery.data?.meta) as
+      | { page: number; limit: number; total: number; totalPages: number }
+      | undefined,
     isLoading: usersQuery.isLoading,
     createUser: createMutation.mutateAsync,
     updateUser: updateMutation.mutateAsync,

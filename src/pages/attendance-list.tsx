@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useAttendance } from '@/hooks/use-attendance'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TablePagination } from '@/components/table-pagination'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Loader2, MapPin, ExternalLink } from 'lucide-react'
 
 export default function AttendanceListPage() {
-  const { webHistory, isWebLoading } = useAttendance()
+  const [page, setPage] = useState(1)
+  const limit = 20
+  const { webHistory, meta, isWebLoading } = useAttendance({ page, limit })
 
   return (
     <div className="space-y-8">
@@ -18,7 +22,6 @@ export default function AttendanceListPage() {
       <Card>
         <CardHeader>
           <CardTitle>Log Kehadiran</CardTitle>
-          <CardDescription>Riwayat presensi seluruh karyawan.</CardDescription>
         </CardHeader>
         <CardContent>
           {isWebLoading ? (
@@ -79,6 +82,15 @@ export default function AttendanceListPage() {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {meta && (
+            <TablePagination
+              page={meta.page}
+              totalPages={meta.totalPages}
+              total={meta.total}
+              limit={meta.limit}
+              onPageChange={setPage}
+            />
           )}
         </CardContent>
       </Card>

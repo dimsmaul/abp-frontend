@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useUsers } from '@/hooks/use-users'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TablePagination } from '@/components/table-pagination'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Loader2, UserPlus, Users } from 'lucide-react'
 
 export default function UsersPage() {
-  const { users, isLoading } = useUsers()
+  const [page, setPage] = useState(1)
+  const limit = 20
+  const { users, meta, isLoading } = useUsers({ page, limit })
 
   return (
     <div className="space-y-8">
@@ -24,7 +28,6 @@ export default function UsersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Daftar Pengguna</CardTitle>
-          <CardDescription>Semua pengguna yang terdaftar di sistem.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -70,6 +73,15 @@ export default function UsersPage() {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {meta && (
+            <TablePagination
+              page={meta.page}
+              totalPages={meta.totalPages}
+              total={meta.total}
+              limit={meta.limit}
+              onPageChange={setPage}
+            />
           )}
         </CardContent>
       </Card>
