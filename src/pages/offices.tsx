@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Building2, Loader2, MapPin, Plus, Trash2, Pencil } from 'lucide-react'
+import { Building2, Loader2, MapPin, Plus, Trash2, Pencil, MoreHorizontal } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -144,7 +150,7 @@ export default function OfficesPage() {
                   <TableHead>Alamat</TableHead>
                   <TableHead>Tipe Zona</TableHead>
                   <TableHead>Lokasi</TableHead>
-                  <TableHead className="w-[220px]"></TableHead>
+                  <TableHead className="w-[60px] text-right"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -162,28 +168,34 @@ export default function OfficesPage() {
                     <TableCell className="text-muted-foreground text-xs">
                       {locationSummary(o)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Link to={`/offices/${o.id}/location`}>
-                          <Button variant="outline" size="sm" className="gap-1.5">
-                            <MapPin size={14} />
-                            Atur Lokasi
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal size={16} />
+                            <span className="sr-only">Aksi</span>
                           </Button>
-                        </Link>
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(o)} className="gap-1.5">
-                          <Pencil size={14} />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleting(o)}
-                          className="gap-1.5 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={14} />
-                          Hapus
-                        </Button>
-                      </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/offices/${o.id}/location`}>
+                              <MapPin size={14} />
+                              Atur Lokasi
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEdit(o)}>
+                            <Pencil size={14} />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setDeleting(o)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 size={14} />
+                            Hapus
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

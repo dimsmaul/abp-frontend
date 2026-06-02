@@ -47,7 +47,6 @@ export default function OfficeLocationPage() {
 
   useEffect(() => {
     if (!office) return
-    setZoneType(office.zoneType)
     if (office.latitude != null && office.longitude != null && office.radius != null) {
       setRadius({ latitude: office.latitude, longitude: office.longitude, radius: office.radius })
     }
