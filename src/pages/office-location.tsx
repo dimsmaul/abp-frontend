@@ -10,7 +10,6 @@ import {
   Map,
   MapTileLayer,
   MapZoomControl,
-  MapPolygon,
   MapDrawControl,
   MapDrawPolygon,
   MapDrawEdit,
@@ -146,14 +145,15 @@ export default function OfficeLocationPage() {
   const tileKey = `${tile}-${isDark ? 'dark' : 'light'}`
 
   // Polygon style decoupled from primary token.
-  // - Satellite: always WHITE (colorful imagery -> white contrasts best).
-  // - Map tile: follows tile darkness; dark tile -> white polygon; light tile -> dark polygon.
+  // - Satellite: always WHITE, thicker stroke for visibility over imagery.
+  // - Map tile (dark): white.
+  // - Map tile (light): near-black for max contrast.
   const polygonStyle =
     tile === 'satellite'
-      ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2 }
+      ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.35, weight: 3, opacity: 1 }
       : isDark
-        ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2 }
-        : { color: '#0a0a0a', fillColor: '#0a0a0a', fillOpacity: 0.25, weight: 2 }
+        ? { color: '#ffffff', fillColor: '#ffffff', fillOpacity: 0.25, weight: 2, opacity: 1 }
+        : { color: '#0a0a0a', fillColor: '#0a0a0a', fillOpacity: 0.25, weight: 2, opacity: 1 }
 
   return (
     <div className="space-y-6">
@@ -210,13 +210,11 @@ export default function OfficeLocationPage() {
             <Map center={mapCenter} zoom={15} className="h-full w-full">
               <MapTileLayer key={tileKey} url={tileUrl} attribution={tileAttr} />
               <MapZoomControl />
-              {polygon && polygon.length >= 3 && (
-                <MapPolygon
-                  positions={polygon.map((c) => [c[1], c[0]]) as any}
-                  pathOptions={polygonStyle}
-                />
-              )}
-              <MapDrawControl onLayersChange={handleLayers}>
+              <MapDrawControl
+                onLayersChange={handleLayers}
+                initialPolygons={polygon && polygon.length >= 3 ? [polygon] : undefined}
+                initialPolygonStyle={polygonStyle}
+              >
                 <MapDrawPolygon shapeOptions={polygonStyle} />
                 <MapDrawEdit />
                 <MapDrawDelete />

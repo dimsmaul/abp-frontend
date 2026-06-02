@@ -979,16 +979,23 @@ function MapDrawControl({
     onLayersChange,
     position = "bottom-1 left-1",
     className,
+    initialPolygons,
+    initialPolygonStyle,
     ...props
 }: React.ComponentProps<"div"> & {
     onLayersChange?: (layers: L.FeatureGroup) => void
     position?: string
+    /** Each polygon: ring of [lng, lat] tuples. Seeded once on mount so edit/delete tools can manage them. */
+    initialPolygons?: number[][][]
+    /** Path options applied to seeded polygons (color, fillColor, weight, fillOpacity, …). */
+    initialPolygonStyle?: Record<string, any>
 }) {
     const { L, LeafletDraw } = useLeaflet()
     const map = useMap()
     const featureGroupRef = useRef<L.FeatureGroup | null>(null)
     const editControlRef = useRef<EditToolbar.Edit | null>(null)
     const deleteControlRef = useRef<EditToolbar.Delete | null>(null)
+    const seededRef = useRef(false)
     const [activeMode, setActiveMode] = useState<MapDrawMode>(null)
     const [layersCount, setLayersCount] = useState(0)
 
@@ -1033,6 +1040,30 @@ function MapDrawControl({
             map.off(L.Draw.Event.DELETED, handleDrawEditedOrDeleted)
         }
     }, [L, LeafletDraw, map, onLayersChange])
+
+    // Seed featureGroup once with existing polygons so edit/delete tools work on them.
+    useEffect(() => {
+        if (!L || !featureGroupRef.current) return
+        if (seededRef.current) return
+        if (!initialPolygons || initialPolygons.length === 0) return
+        for (const ring of initialPolygons) {
+            const latlngs = ring.map(([lng, lat]) => L.latLng(lat, lng))
+            const poly = L.polygon(latlngs, initialPolygonStyle ?? {})
+            featureGroupRef.current.addLayer(poly)
+        }
+        seededRef.current = true
+        updateLayersCount()
+    }, [L, initialPolygons, initialPolygonStyle])
+
+    // Re-apply style when initialPolygonStyle changes (e.g. theme or tile switch).
+    useEffect(() => {
+        if (!featureGroupRef.current || !initialPolygonStyle) return
+        featureGroupRef.current.eachLayer((layer: any) => {
+            if (typeof layer.setStyle === 'function') {
+                layer.setStyle(initialPolygonStyle)
+            }
+        })
+    }, [initialPolygonStyle])
 
     return (
         <MapDrawContext.Provider
