@@ -31,14 +31,8 @@ type FormState = { name: string; address: string }
 
 const emptyForm: FormState = { name: '', address: '' }
 
-function locationSummary(o: Office): string {
-  if (o.zoneType === 'polygon') {
-    return o.polygon && o.polygon.length >= 3 ? `Polygon · ${o.polygon.length} titik` : 'Belum diatur'
-  }
-  if (o.latitude != null && o.longitude != null && o.radius != null) {
-    return `${o.latitude.toFixed(5)}, ${o.longitude.toFixed(5)} · ${o.radius} m`
-  }
-  return 'Belum diatur'
+function isLocationSet(o: Office): boolean {
+  return !!(o.polygon && o.polygon.length >= 3)
 }
 
 export default function OfficesPage() {
@@ -87,7 +81,7 @@ export default function OfficesPage() {
         const payload: OfficeInput = {
           name: form.name,
           address: form.address,
-          zoneType: 'radius',
+          zoneType: 'polygon',
         }
         await createOffice(payload)
         toast.success('Kantor dibuat. Atur lokasi pada baris kantor.')
@@ -151,8 +145,7 @@ export default function OfficesPage() {
                 <TableRow>
                   <TableHead>Nama</TableHead>
                   <TableHead>Alamat</TableHead>
-                  <TableHead>Tipe Zona</TableHead>
-                  <TableHead>Lokasi</TableHead>
+                  <TableHead>Status Lokasi</TableHead>
                   <TableHead className="w-[60px] text-right"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -164,12 +157,15 @@ export default function OfficesPage() {
                       {o.address || '—'}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize font-normal">
-                        {o.zoneType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {locationSummary(o)}
+                      {isLocationSet(o) ? (
+                        <Badge variant="default" className="font-normal">
+                          Sudah diatur ({o.polygon!.length} titik)
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="font-normal text-muted-foreground">
+                          Belum diatur
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
