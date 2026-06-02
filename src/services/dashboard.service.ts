@@ -7,7 +7,7 @@ export const dashboardService = {
   },
 
   getMapPoints: async (date?: string) => {
-    const res = await api.get('/api/web/dashboard/map-points', { params: { date } })
+    const res = await api.get('/api/web/attendances/map-points', { params: { date } })
     return res.data.data
   }
 }
