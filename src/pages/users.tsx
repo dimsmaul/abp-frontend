@@ -24,8 +24,8 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="py-0">
+        <CardContent className="p-0">
           <DataTable<any>
             data={users}
             loading={isLoading}

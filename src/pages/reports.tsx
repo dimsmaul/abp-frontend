@@ -29,8 +29,8 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="py-0">
+        <CardContent className="p-0">
           <DataTable<any>
             data={reports}
             loading={isLoading}
