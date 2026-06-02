@@ -29,7 +29,7 @@ function buildPages(current: number, total: number): (number | 'ellipsis')[] {
 }
 
 export function TablePagination({ page, totalPages, total, limit, onPageChange }: Props) {
-  if (!totalPages || totalPages <= 1) return null
+  if (!totalPages || totalPages < 1) return null
 
   const pages = buildPages(page, totalPages)
   const from = total && limit ? (page - 1) * limit + 1 : null
