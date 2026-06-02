@@ -118,7 +118,7 @@ export default function OfficesPage() {
         </Button>
       </div>
 
-      <Card className="py-0">
+      <Card>
         <CardContent>
           <DataTable<Office>
             data={offices}

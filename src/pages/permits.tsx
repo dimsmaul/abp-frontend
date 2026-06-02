@@ -108,7 +108,7 @@ export default function PermitsPage() {
         </Select>
       </div>
 
-      <Card className="py-0">
+      <Card>
         <CardContent>
           <DataTable<Permit>
             data={permits}

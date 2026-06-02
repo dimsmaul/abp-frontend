@@ -18,7 +18,7 @@ export default function AttendanceListPage() {
         <p className="text-muted-foreground text-sm">Pantau kehadiran seluruh karyawan secara real-time.</p>
       </div>
 
-      <Card className="py-0">
+      <Card>
         <CardContent>
           <DataTable<any>
             data={webHistory}

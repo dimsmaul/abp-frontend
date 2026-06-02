@@ -29,7 +29,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <Card className="py-0">
+      <Card>
         <CardContent>
           <DataTable<any>
             data={reports}
