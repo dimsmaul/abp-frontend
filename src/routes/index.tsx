@@ -10,6 +10,7 @@ import UsersPage from '@/pages/users'
 import OfficesPage from '@/pages/offices'
 import OfficeLocationPage from '@/pages/office-location'
 import PermitsPage from '@/pages/permits'
+import LeaveBalancesPage from '@/pages/leave-balances'
 import ProfilePage from '@/pages/profile'
 import { useSession } from '@/lib/auth-client'
 
@@ -99,6 +100,14 @@ export const router = createBrowserRouter([
             element: (
               <MainLayout>
                 <OfficeLocationPage />
+              </MainLayout>
+            ),
+          },
+          {
+            path: '/leave-balances',
+            element: (
+              <MainLayout>
+                <LeaveBalancesPage />
               </MainLayout>
             ),
           },
