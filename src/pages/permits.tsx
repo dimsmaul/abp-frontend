@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ChevronRight, Loader2, Paperclip } from 'lucide-react'
+import { Calendar, ChevronRight, Loader2, Paperclip } from 'lucide-react'
+import { useSession } from '@/lib/auth-client'
 import { Card, CardContent } from '@/components/ui/card'
 import { DataTable } from '@/components/datatable'
 import { Badge } from '@/components/ui/badge'
@@ -60,6 +62,8 @@ export default function PermitsPage() {
   const [page, setPage] = useState(1)
   const limit = 20
   const { permits, meta, isLoading, validate, isValidating } = usePermits({ status, page, limit })
+  const { data: session } = useSession()
+  const isAdmin = (session?.user as any)?.role === 'admin'
 
   const [detail, setDetail] = useState<Permit | null>(null)
   const [notes, setNotes] = useState('')
@@ -94,6 +98,16 @@ export default function PermitsPage() {
             Validasi pengajuan cuti, sakit, izin, dan dinas dari karyawan.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              to="/leave-balances"
+              className="inline-flex items-center gap-1.5 rounded-md border bg-muted/50 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            >
+              <Calendar size={12} />
+              Saldo Cuti
+            </Link>
+          )}
         <Select value={status} onValueChange={(v) => setStatus(v as PermitStatus | 'all')}>
           <SelectTrigger className="w-44">
             <SelectValue />
@@ -106,6 +120,7 @@ export default function PermitsPage() {
             ))}
           </SelectContent>
         </Select>
+        </div>
       </div>
 
       <Card>

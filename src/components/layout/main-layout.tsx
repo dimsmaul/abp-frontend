@@ -17,6 +17,7 @@ import {
   Users,
   Building2,
   FileCheck,
+  Calendar,
   LogOut,
   User as UserIcon,
   PanelLeftClose,
@@ -50,6 +51,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: 'Kantor', icon: Building2, href: '/offices', roles: ['admin'] },
       { label: 'Manajemen User', icon: Users, href: '/users', roles: ['admin'] },
+      { label: 'Saldo Cuti', icon: Calendar, href: '/leave-balances', roles: ['admin'] },
     ],
   },
 ]
