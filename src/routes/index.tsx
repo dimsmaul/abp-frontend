@@ -11,6 +11,7 @@ import OfficesPage from '@/pages/offices'
 import OfficeLocationPage from '@/pages/office-location'
 import PermitsPage from '@/pages/permits'
 import LeaveBalancesPage from '@/pages/leave-balances'
+import AnnouncementsPage from '@/pages/announcements'
 import ProfilePage from '@/pages/profile'
 import { useSession } from '@/lib/auth-client'
 
@@ -121,6 +122,14 @@ export const router = createBrowserRouter([
             element: (
               <MainLayout>
                 <PermitsPage />
+              </MainLayout>
+            ),
+          },
+          {
+            path: '/announcements',
+            element: (
+              <MainLayout>
+                <AnnouncementsPage />
               </MainLayout>
             ),
           },

@@ -18,6 +18,7 @@ import {
   Building2,
   FileCheck,
   Calendar,
+  Megaphone,
   LogOut,
   User as UserIcon,
   PanelLeftClose,
@@ -44,6 +45,7 @@ const navGroups: NavGroup[] = [
       { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
       { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
       { label: 'Pengajuan', icon: FileCheck, href: '/permits', roles: ['admin', 'manager'] },
+      { label: 'Pengumuman', icon: Megaphone, href: '/announcements', roles: ['admin', 'manager'] },
     ],
   },
   {
