@@ -13,6 +13,9 @@ export interface Office {
   polygon?: number[][]
   province?: string | null
   regency?: string | null
+  workStartTime?: string | null
+  workEndTime?: string | null
+  lateThresholdMinutes?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -27,6 +30,9 @@ export interface OfficeInput {
   polygon?: number[][] | null
   province?: string | null
   regency?: string | null
+  workStartTime?: string | null
+  workEndTime?: string | null
+  lateThresholdMinutes?: number | null
 }
 
 export type OfficeListMeta = { page: number; limit: number; total: number; totalPages: number }

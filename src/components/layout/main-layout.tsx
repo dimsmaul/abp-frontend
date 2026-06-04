@@ -16,7 +16,7 @@ import {
   FileText,
   Users,
   Building2,
-  FileCheck,
+  CheckCheck,
   Calendar,
   Megaphone,
   LogOut,
@@ -44,7 +44,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: 'Monitoring Presensi', icon: MapPin, href: '/attendance-list', roles: ['admin', 'manager'] },
       { label: 'Laporan', icon: FileText, href: '/reports', roles: ['admin', 'manager'] },
-      { label: 'Pengajuan', icon: FileCheck, href: '/permits', roles: ['admin', 'manager'] },
+      { label: 'Persetujuan', icon: CheckCheck, href: '/permits', roles: ['admin', 'manager'] },
       { label: 'Pengumuman', icon: Megaphone, href: '/announcements', roles: ['admin', 'manager'] },
     ],
   },
