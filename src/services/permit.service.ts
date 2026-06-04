@@ -28,14 +28,14 @@ export const permitService = {
     if (params?.status && params.status !== 'all') cleaned.status = params.status
     if (params?.page) cleaned.page = params.page
     if (params?.limit) cleaned.limit = params.limit
-    const res = await api.get('/api/permits', { params: cleaned })
+    const res = await api.get('/api/web/permits', { params: cleaned })
     return res.data.data as
       | { items: Permit[]; meta?: { page: number; limit: number; total: number; totalPages: number } }
       | Permit[]
   },
 
   validate: async (id: string, data: ValidatePermitInput) => {
-    const res = await api.patch(`/api/permits/${id}/validate`, data)
+    const res = await api.patch(`/api/web/permits/${id}/validate`, data)
     return res.data.data as Permit
   },
 }
