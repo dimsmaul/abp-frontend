@@ -25,9 +25,27 @@ import {
 import { useOffices } from '@/hooks/use-offices'
 import type { Office, OfficeInput } from '@/services/office.service'
 
-type FormState = { name: string; address: string }
+type FormState = {
+  name: string
+  address: string
+  workStartTime: string
+  workEndTime: string
+  lateThresholdMinutes: number
+}
 
-const emptyForm: FormState = { name: '', address: '' }
+const emptyForm: FormState = {
+  name: '',
+  address: '',
+  workStartTime: '08:00',
+  workEndTime: '17:00',
+  lateThresholdMinutes: 15,
+}
+
+// Backend stores time as 'HH:MM:SS'; <input type="time"> wants 'HH:MM'.
+function toTimeInput(v?: string | null, fallback = '08:00') {
+  if (!v) return fallback
+  return v.length >= 5 ? v.slice(0, 5) : v
+}
 
 function isLocationSet(o: Office): boolean {
   return !!(o.polygon && o.polygon.length >= 3)
@@ -61,7 +79,14 @@ export default function OfficesPage() {
 
   const openEdit = (o: Office) => {
     setEditing(o)
-    setForm({ name: o.name, address: o.address ?? '' })
+    setForm({
+      name: o.name,
+      address: o.address ?? '',
+      workStartTime: toTimeInput(o.workStartTime, '08:00'),
+      workEndTime: toTimeInput(o.workEndTime, '17:00'),
+      lateThresholdMinutes:
+        typeof o.lateThresholdMinutes === 'number' ? o.lateThresholdMinutes : 15,
+    })
     setFormOpen(true)
   }
 
@@ -72,14 +97,26 @@ export default function OfficesPage() {
       return
     }
     try {
+      const schedule = {
+        workStartTime: form.workStartTime || null,
+        workEndTime: form.workEndTime || null,
+        lateThresholdMinutes:
+          Number.isFinite(form.lateThresholdMinutes) && form.lateThresholdMinutes >= 0
+            ? form.lateThresholdMinutes
+            : null,
+      }
       if (editing) {
-        await updateOffice({ id: editing.id, data: { name: form.name, address: form.address } })
+        await updateOffice({
+          id: editing.id,
+          data: { name: form.name, address: form.address, ...schedule },
+        })
         toast.success('Kantor diperbarui')
       } else {
         const payload: OfficeInput = {
           name: form.name,
           address: form.address,
           zoneType: 'polygon',
+          ...schedule,
         }
         await createOffice(payload)
         toast.success('Kantor dibuat. Atur lokasi pada baris kantor.')
@@ -219,6 +256,55 @@ export default function OfficesPage() {
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 placeholder="Jl. Merdeka No. 1"
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="office-work-start">Jam Mulai</Label>
+                <Input
+                  id="office-work-start"
+                  type="time"
+                  value={form.workStartTime}
+                  onChange={(e) =>
+                    setForm({ ...form, workStartTime: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="office-work-end">Jam Selesai</Label>
+                <Input
+                  id="office-work-end"
+                  type="time"
+                  value={form.workEndTime}
+                  onChange={(e) =>
+                    setForm({ ...form, workEndTime: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="office-late-threshold">
+                Toleransi Terlambat (menit)
+              </Label>
+              <Input
+                id="office-late-threshold"
+                type="number"
+                min={0}
+                max={240}
+                value={form.lateThresholdMinutes}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    lateThresholdMinutes: e.target.value === ''
+                      ? 0
+                      : Number(e.target.value),
+                  })
+                }
+              />
+              <p className="text-muted-foreground text-xs">
+                Check-in lewat ambang ini ditandai sebagai terlambat.
+              </p>
             </div>
 
             <DialogFooter>
