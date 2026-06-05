@@ -10,10 +10,12 @@ export function useAuth() {
   const handleLogin = async (data: any) => {
     setLoading(true)
     try {
+      // No `callbackURL` — that field tells better-auth to issue a
+      // server-side redirect, which the browser follows as a full page
+      // reload. We want SPA navigation via react-router instead.
       const { error } = await signIn.email({
         email: data.email,
         password: data.password,
-        callbackURL: '/',
       })
 
       if (error) {
@@ -39,11 +41,11 @@ export function useAuth() {
   const handleRegister = async (data: any) => {
     setLoading(true)
     try {
+      // Same reasoning as handleLogin — keep navigation client-side.
       const { error } = await signUp.email({
         email: data.email,
         password: data.password,
         name: data.name,
-        callbackURL: '/',
       })
 
       if (error) {
