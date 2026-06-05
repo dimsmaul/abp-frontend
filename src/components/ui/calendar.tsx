@@ -87,7 +87,9 @@ function Calendar({
             : "flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
           defaultClassNames.caption_label
         ),
-        table: "w-full border-collapse",
+        // react-day-picker v10 removed the `table` slot — layout uses flex
+        // grids now, not a real <table>. Keep this comment as a reminder
+        // if a shadcn re-add pulls the old `table:` key back in.
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
           "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
