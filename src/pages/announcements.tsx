@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { format } from 'date-fns'
 import {
+  CalendarIcon,
   Loader2,
   Megaphone,
   MoreHorizontal,
@@ -9,6 +11,12 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -344,7 +352,7 @@ export default function AnnouncementsPage() {
                     setForm({ ...form, priority: v as AnnouncementPriority })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -357,12 +365,37 @@ export default function AnnouncementsPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="ann-expires">Kadaluarsa (opsional)</Label>
-                <Input
-                  id="ann-expires"
-                  type="date"
-                  value={form.expiresAt}
-                  onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="ann-expires"
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start font-normal"
+                    >
+                      <CalendarIcon />
+                      {form.expiresAt
+                        ? format(new Date(`${form.expiresAt}T00:00:00`), 'PPP')
+                        : 'Pilih tanggal'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        form.expiresAt
+                          ? new Date(`${form.expiresAt}T00:00:00`)
+                          : undefined
+                      }
+                      onSelect={(d) =>
+                        setForm({
+                          ...form,
+                          expiresAt: d ? format(d, 'yyyy-MM-dd') : '',
+                        })
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
