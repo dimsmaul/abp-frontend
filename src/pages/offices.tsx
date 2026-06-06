@@ -1,7 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { MapPin, Plus, Trash2, Pencil, MoreHorizontal, Check, Minus, Loader2 } from 'lucide-react'
+import { MapPin, Plus, Trash2, Pencil, MoreHorizontal, Check, Minus, Loader2, Map as MapIcon, Rows } from 'lucide-react'
+import {
+  Map,
+  MapPolygon,
+  MapTileLayer,
+  MapMarker,
+  MapPopup,
+  MapZoomControl,
+} from '@/components/ui/map'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,8 +59,27 @@ function isLocationSet(o: Office): boolean {
   return !!(o.polygon && o.polygon.length >= 3)
 }
 
+// Backend polygons are GeoJSON-style [[lng, lat], ...]; Leaflet wants
+// [[lat, lng], ...]. Swap once per render to keep MapPolygon happy.
+function toLeafletRing(p: number[][] | null | undefined): [number, number][] {
+  if (!p) return []
+  return p.map(([lng, lat]) => [lat, lng] as [number, number])
+}
+
+function polygonCentroid(p: number[][]): [number, number] | null {
+  if (!p || p.length < 3) return null
+  let lat = 0
+  let lng = 0
+  for (const [pLng, pLat] of p) {
+    lat += pLat
+    lng += pLng
+  }
+  return [lat / p.length, lng / p.length]
+}
+
 export default function OfficesPage() {
   const [page, setPage] = useState(1)
+  const [view, setView] = useState<'list' | 'map'>('list')
   const limit = 20
   const {
     offices,
@@ -149,12 +176,37 @@ export default function OfficesPage() {
             Kelola lokasi kantor dan zona presensi karyawan.
           </p>
         </div>
-        <Button className="gap-2" onClick={openCreate}>
-          <Plus size={16} />
-          Tambah Kantor
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="bg-muted inline-flex items-center rounded-md p-0.5">
+            <Button
+              variant={view === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setView('list')}
+            >
+              <Rows size={14} />
+              List
+            </Button>
+            <Button
+              variant={view === 'map' ? 'default' : 'ghost'}
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setView('map')}
+            >
+              <MapIcon size={14} />
+              Map
+            </Button>
+          </div>
+          <Button className="gap-2" onClick={openCreate}>
+            <Plus size={16} />
+            Tambah Kantor
+          </Button>
+        </div>
       </div>
 
+      {view === 'map' ? (
+        <OfficesMapView offices={offices} loading={isLoading} />
+      ) : (
       <Card>
         <CardContent>
           <DataTable<Office>
@@ -224,6 +276,7 @@ export default function OfficesPage() {
           />
         </CardContent>
       </Card>
+      )}
 
       {/* Create / Edit dialog (name + address only) */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
@@ -349,5 +402,95 @@ export default function OfficesPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+// ── Office map overview ─────────────────────────────────────────────
+// Renders every office's geofence polygon on a single Leaflet map. The
+// default tile layer in @/components/ui/map is already CartoDB Positron
+// (light gray + soft blue water — matches the Google-Maps-style look
+// requested), so this view just needs the polygons + a centroid marker
+// per office.
+function OfficesMapView({
+  offices,
+  loading,
+}: {
+  offices: Office[]
+  loading: boolean
+}) {
+  const eligible = useMemo(
+    () => offices.filter((o) => isLocationSet(o)),
+    [offices],
+  )
+
+  const center = useMemo<[number, number]>(() => {
+    if (eligible.length === 0) return [-6.2088, 106.8456] // Jakarta default
+    // Average of all polygon centroids → keeps the camera reasonable when
+    // offices span multiple cities.
+    let lat = 0
+    let lng = 0
+    let n = 0
+    for (const o of eligible) {
+      const c = polygonCentroid(o.polygon!)
+      if (!c) continue
+      lat += c[0]
+      lng += c[1]
+      n += 1
+    }
+    return n > 0 ? [lat / n, lng / n] : [-6.2088, 106.8456]
+  }, [eligible])
+
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <div className="h-[560px] overflow-hidden rounded-md">
+          <Map center={center} zoom={eligible.length > 0 ? 12 : 5} className="h-full">
+            <MapTileLayer name="Light" />
+            <MapZoomControl />
+            {eligible.map((o) => {
+              const ring = toLeafletRing(o.polygon)
+              const c = polygonCentroid(o.polygon!)
+              return (
+                <span key={o.id}>
+                  <MapPolygon
+                    positions={ring}
+                    pathOptions={{ color: '#2563eb', weight: 2, fillOpacity: 0.15 }}
+                  />
+                  {c && (
+                    <MapMarker position={c}>
+                      <MapPopup>
+                        <div className="space-y-1">
+                          <div className="font-semibold">{o.name}</div>
+                          {o.address && (
+                            <div className="text-muted-foreground text-xs">{o.address}</div>
+                          )}
+                          <Link
+                            to={`/offices/${o.id}/location`}
+                            className="text-xs underline"
+                          >
+                            Edit area
+                          </Link>
+                        </div>
+                      </MapPopup>
+                    </MapMarker>
+                  )}
+                </span>
+              )
+            })}
+          </Map>
+        </div>
+        {loading && (
+          <div className="text-muted-foreground flex items-center gap-2 p-3 text-xs">
+            <Loader2 className="animate-spin" size={14} />
+            Memuat kantor…
+          </div>
+        )}
+        {!loading && eligible.length === 0 && (
+          <div className="text-muted-foreground p-6 text-center text-sm">
+            Belum ada kantor dengan area yang ter-set.
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
