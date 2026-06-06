@@ -39,6 +39,7 @@ type FormState = {
   workStartTime: string
   workEndTime: string
   lateThresholdMinutes: number
+  status: 'active' | 'disabled'
 }
 
 const emptyForm: FormState = {
@@ -47,6 +48,7 @@ const emptyForm: FormState = {
   workStartTime: '08:00',
   workEndTime: '17:00',
   lateThresholdMinutes: 15,
+  status: 'active',
 }
 
 // Backend stores time as 'HH:MM:SS'; <input type="time"> wants 'HH:MM'.
@@ -113,6 +115,7 @@ export default function OfficesPage() {
       workEndTime: toTimeInput(o.workEndTime, '17:00'),
       lateThresholdMinutes:
         typeof o.lateThresholdMinutes === 'number' ? o.lateThresholdMinutes : 15,
+      status: o.status ?? 'active',
     })
     setFormOpen(true)
   }
@@ -135,7 +138,12 @@ export default function OfficesPage() {
       if (editing) {
         await updateOffice({
           id: editing.id,
-          data: { name: form.name, address: form.address, ...schedule },
+          data: {
+            name: form.name,
+            address: form.address,
+            status: form.status,
+            ...schedule,
+          },
         })
         toast.success('Kantor diperbarui')
       } else {
@@ -143,6 +151,7 @@ export default function OfficesPage() {
           name: form.name,
           address: form.address,
           zoneType: 'polygon',
+          status: form.status,
           ...schedule,
         }
         await createOffice(payload)
@@ -212,12 +221,24 @@ export default function OfficesPage() {
           <DataTable<Office>
             data={offices}
             loading={isLoading}
-            column={['Nama', 'Alamat', 'Status Lokasi', { label: '', width: '60px', className: 'text-right' }]}
+            column={['Nama', 'Alamat', 'Status', 'Lokasi', { label: '', width: '60px', className: 'text-right' }]}
             field={[
               (o) => <span className="font-medium">{o.name}</span>,
               (o) => (
                 <span className="text-muted-foreground max-w-[260px] truncate block" title={o.address}>
                   {o.address || '—'}
+                </span>
+              ),
+              (o) => (
+                <span
+                  className={
+                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ' +
+                    (o.status === 'disabled'
+                      ? 'bg-muted text-muted-foreground'
+                      : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300')
+                  }
+                >
+                  {o.status === 'disabled' ? 'Nonaktif' : 'Aktif'}
                 </span>
               ),
               (o) =>
@@ -357,6 +378,32 @@ export default function OfficesPage() {
               />
               <p className="text-muted-foreground text-xs">
                 Check-in lewat ambang ini ditandai sebagai terlambat.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="office-status">Status</Label>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={form.status === 'active' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setForm({ ...form, status: 'active' })}
+                >
+                  Aktif
+                </Button>
+                <Button
+                  type="button"
+                  variant={form.status === 'disabled' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setForm({ ...form, status: 'disabled' })}
+                >
+                  Nonaktif
+                </Button>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Kantor nonaktif tidak akan terlihat di aplikasi mobile dan
+                tidak menerima check-in baru.
               </p>
             </div>
 

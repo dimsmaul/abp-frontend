@@ -1,6 +1,7 @@
 import api from '@/lib/axios'
 
 export type ZoneType = 'radius' | 'polygon'
+export type OfficeStatus = 'active' | 'disabled'
 
 export interface Office {
   id: string
@@ -13,6 +14,7 @@ export interface Office {
   polygon?: number[][]
   province?: string | null
   regency?: string | null
+  status: OfficeStatus
   workStartTime?: string | null
   workEndTime?: string | null
   lateThresholdMinutes?: number | null
@@ -30,6 +32,7 @@ export interface OfficeInput {
   polygon?: number[][] | null
   province?: string | null
   regency?: string | null
+  status?: OfficeStatus
   workStartTime?: string | null
   workEndTime?: string | null
   lateThresholdMinutes?: number | null
@@ -38,8 +41,17 @@ export interface OfficeInput {
 export type OfficeListMeta = { page: number; limit: number; total: number; totalPages: number }
 
 export const officeService = {
-  getAll: async (params?: { page?: number; limit?: number }) => {
-    const res = await api.get('/api/web/offices', { params })
+  getAll: async (params?: {
+    page?: number
+    limit?: number
+    status?: OfficeStatus | 'all'
+  }) => {
+    // Admin needs to see disabled offices too — default to 'all' so the
+    // toggle in the table actually exposes them. Override per call when
+    // needed.
+    const res = await api.get('/api/web/offices', {
+      params: { status: 'all', ...params },
+    })
     return res.data.data as { items: Office[]; meta: OfficeListMeta }
   },
 
